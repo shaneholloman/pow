@@ -178,7 +178,7 @@ const program = new Command();
 program
   .name("pow")
   .description("Manage git main/master branches and cleanup")
-  .version("0.1.0")
+  .version("0.2.0")
   .argument("[branch-name]", "Optional branch name to switch to or create")
   .action(async (branchName?: string) => {
     try {
