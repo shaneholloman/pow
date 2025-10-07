@@ -1,20 +1,20 @@
-import chalk from "chalk";
-import { Command } from "commander";
-import { $, question, spinner } from "zx";
+import chalk from 'chalk';
+import { Command } from 'commander';
+import { $, question, spinner } from 'zx';
 import {
     findBranchesWithDeletedRemotes,
     quickPull,
     setupRepository,
     validateBranchExistence,
-} from "./handle-git.js";
+} from './handle-git.js';
 import {
     detectPackageManager,
     getLockfile,
     getLockfileContent,
     installDependencies,
-} from "./install-dependencies.js";
-import { log } from "./logger.js";
-import type { ZxConfig } from "./types.js";
+} from './install-dependencies.js';
+import { log } from './logger.js';
+import type { ZxConfig } from './types.js';
 
 // Configure zx shell settings
 // Using type assertion because zx doesn't export proper types for these properties
@@ -22,40 +22,40 @@ import type { ZxConfig } from "./types.js";
 ($ as unknown as ZxConfig).verbose = false;
 
 async function confirmAction(message: string): Promise<boolean> {
-    let result = "";
-    while (result !== "y" && result !== "n") {
-        result = await question(`${chalk.yellow("?")} ${message} [y/n]: `, {
-            choices: ["y", "n"],
+    let result = '';
+    while (result !== 'y' && result !== 'n') {
+        result = await question(`${chalk.yellow('?')} ${message} [y/n]: `, {
+            choices: ['y', 'n'],
         });
     }
-    return result === "y";
+    return result === 'y';
 }
 
 async function main(branchName?: string): Promise<void> {
-    log.action("Setting up repository...");
+    log.action('Setting up repository...');
     const { defaultRemote, gitRoot } = await setupRepository();
 
-    log.action("Fetching latest changes and detecting dependencies...");
+    log.action('Fetching latest changes and detecting dependencies...');
     const [packageManager, originalLockfileContent] = await Promise.all([
         detectPackageManager(gitRoot),
         getLockfileContent(gitRoot),
         $`git fetch`.catch((e) => {
             if (
                 e instanceof Error &&
-                e.message.includes("fatal: not a git repository")
+                e.message.includes('fatal: not a git repository')
             ) {
-                log.error("Not a git repository");
+                log.error('Not a git repository');
                 process.exit(1);
             }
             throw e;
         }),
     ]);
 
-    let mainBranch = "main";
+    let mainBranch = 'main';
     try {
         await $`git rev-parse --quiet --verify ${mainBranch}`;
     } catch {
-        mainBranch = "master";
+        mainBranch = 'master';
     }
     log.info(`Using main branch: ${chalk.bold(mainBranch)}`);
 
@@ -91,9 +91,9 @@ async function main(branchName?: string): Promise<void> {
     const status = (await $`git status --porcelain`).stdout;
     if (status) {
         if (createNewBranch) {
-            log.info("Creating new branch with uncommitted changes");
+            log.info('Creating new branch with uncommitted changes');
         } else if (currentBranch === mainBranch) {
-            console.log("");
+            console.log('');
             log.warning(
                 `You are on ${chalk.bold(
                     mainBranch,
@@ -101,22 +101,22 @@ async function main(branchName?: string): Promise<void> {
             );
             const files = (await $`git ls-files -mo --exclude-standard`).stdout;
             files
-                .split("\n")
+                .split('\n')
                 .filter(Boolean)
                 .forEach((file) => {
                     console.log(` ./${chalk.bold(file)}`);
                 });
-            console.log("");
-            if (await confirmAction("Revert all changes?")) {
-                log.action("Resetting working directory...");
+            console.log('');
+            if (await confirmAction('Revert all changes?')) {
+                log.action('Resetting working directory...');
                 await $`git add --all`;
                 await $`git reset --hard HEAD`;
-                log.success("Working directory cleaned");
+                log.success('Working directory cleaned');
             } else {
                 process.exit(1);
             }
         } else {
-            log.error("Branch is not clean");
+            log.error('Branch is not clean');
             process.exit(1);
         }
     }
@@ -138,7 +138,7 @@ async function main(branchName?: string): Promise<void> {
             }
         }
 
-        log.action("Pulling latest changes...");
+        log.action('Pulling latest changes...');
         await quickPull(mainBranch, defaultRemote);
     }
 
@@ -153,8 +153,8 @@ async function main(branchName?: string): Promise<void> {
         await $`git checkout -b ${createNewBranch}`;
     }
 
-    if (mainBranch === "master" || mainBranch === "main") {
-        log.action("Cleaning up branches with deleted remotes...");
+    if (mainBranch === 'master' || mainBranch === 'main') {
+        log.action('Cleaning up branches with deleted remotes...');
 
         const branchesToDelete = await findBranchesWithDeletedRemotes(
             mainBranch,
@@ -162,7 +162,7 @@ async function main(branchName?: string): Promise<void> {
         );
 
         if (branchesToDelete.length === 0) {
-            log.info("No branches with deleted remotes found");
+            log.info('No branches with deleted remotes found');
         } else {
             for (const branchName of branchesToDelete) {
                 log.info(
@@ -172,7 +172,7 @@ async function main(branchName?: string): Promise<void> {
             }
             log.success(
                 `Deleted ${branchesToDelete.length} branch${
-                    branchesToDelete.length > 1 ? "es" : ""
+                    branchesToDelete.length > 1 ? 'es' : ''
                 } with deleted remotes`,
             );
         }
@@ -188,16 +188,16 @@ async function main(branchName?: string): Promise<void> {
         log.info(`${await getLockfile(gitRoot)} is unchanged`);
     }
 
-    log.success("All done!");
+    log.success('All done!');
 }
 
 const program = new Command();
 
 program
-    .name("pow")
-    .description("Manage git main/master branches and cleanup")
-    .version("0.2.1")
-    .argument("[branch-name]", "Optional branch name to switch to or create")
+    .name('pow')
+    .description('Manage git main/master branches and cleanup')
+    .version('0.2.1')
+    .argument('[branch-name]', 'Optional branch name to switch to or create')
     .action(async (branchName?: string) => {
         try {
             await main(branchName);

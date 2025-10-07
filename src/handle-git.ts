@@ -1,6 +1,6 @@
-import { $ } from "zx";
-import { log } from "./logger.js";
-import type { BranchValidation, RepositoryInfo } from "./types.js";
+import { $ } from 'zx';
+import { log } from './logger.js';
+import type { BranchValidation, RepositoryInfo } from './types.js';
 
 export async function setupRepository(): Promise<RepositoryInfo> {
     const [remoteResult, gitRootResult] = await Promise.all([
@@ -12,7 +12,7 @@ export async function setupRepository(): Promise<RepositoryInfo> {
     const gitRoot = gitRootResult.stdout.trim();
 
     if (!defaultRemote) {
-        log.error("No remote repository found");
+        log.error('No remote repository found');
         process.exit(1);
     }
 
@@ -28,8 +28,8 @@ export async function validateBranchExistence(
         $`git ls-remote --exit-code ${defaultRemote} ${branchName}`,
     ]);
 
-    const localExists = validationResults[0].status === "fulfilled";
-    const remoteExists = validationResults[1].status === "fulfilled";
+    const localExists = validationResults[0].status === 'fulfilled';
+    const remoteExists = validationResults[1].status === 'fulfilled';
 
     return { localExists, remoteExists };
 }
@@ -40,18 +40,18 @@ export async function quickPull(
 ): Promise<void> {
     try {
         await $`git merge --ff-only ${remote}/${mainBranch}`;
-        log.success("Fast-forwarded to latest changes");
+        log.success('Fast-forwarded to latest changes');
     } catch (_e) {
-        log.action("Cannot fast-forward, using git pull...");
+        log.action('Cannot fast-forward, using git pull...');
         try {
             const pullResult = await $`git pull`;
-            if (pullResult.stdout.includes("Already up to date.")) {
-                log.info("Repository is already up to date");
+            if (pullResult.stdout.includes('Already up to date.')) {
+                log.info('Repository is already up to date');
             }
         } catch (pullError) {
             if (
                 pullError instanceof Error &&
-                pullError.message.includes("There is no tracking information")
+                pullError.message.includes('There is no tracking information')
             ) {
                 log.info(
                     `Branch '${mainBranch}' has no upstream tracking, skipping pull`,
@@ -78,7 +78,7 @@ export async function findBranchesWithDeletedRemotes(
             ),
         ]);
 
-        const branches = branchResult.stdout.split("\n").filter(Boolean);
+        const branches = branchResult.stdout.split('\n').filter(Boolean);
 
         for (const line of branches) {
             const match = line.match(
@@ -87,19 +87,19 @@ export async function findBranchesWithDeletedRemotes(
             if (!match) continue;
 
             const branchName = match[2];
-            const trackingInfo = match[3] || "";
+            const trackingInfo = match[3] || '';
 
             if (
                 !branchName ||
                 branchName === currentBranch ||
                 branchName === mainBranch ||
-                branchName === "master" ||
-                branchName === "main"
+                branchName === 'master' ||
+                branchName === 'main'
             ) {
                 continue;
             }
 
-            const isRemoteGone = trackingInfo?.includes(": gone");
+            const isRemoteGone = trackingInfo?.includes(': gone');
 
             if (isRemoteGone) {
                 branchesToDelete.push(branchName);

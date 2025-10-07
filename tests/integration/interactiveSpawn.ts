@@ -2,15 +2,15 @@ import {
     type ChildProcess,
     type SpawnOptions as NodeSpawnOptions,
     spawn,
-} from "node:child_process";
+} from 'node:child_process';
 
 // Inline stripAnsi function
 const stripAnsi = (str: string): string => {
     // Create regex from string to avoid control character literal warning
     // Pattern matches ANSI escape codes: ESC[ + numbers/semicolons + letter
     const pattern = `${String.fromCharCode(27)}\\[[0-9;]*[a-zA-Z]|${String.fromCharCode(155)}[0-9;]*[a-zA-Z]`;
-    const ansiRegex = new RegExp(pattern, "g");
-    return str.replace(ansiRegex, "");
+    const ansiRegex = new RegExp(pattern, 'g');
+    return str.replace(ansiRegex, '');
 };
 
 export interface SpawnOptions extends NodeSpawnOptions {
@@ -46,17 +46,17 @@ export function createInteractiveCLI(
     command: string,
     options?: SpawnOptions,
 ): InteractiveCLISession {
-    const [cmd, ...args] = command.split(" ");
+    const [cmd, ...args] = command.split(' ');
     if (!cmd) {
-        throw new Error("No command provided to createInteractiveCLI");
+        throw new Error('No command provided to createInteractiveCLI');
     }
     const child: ChildProcess = spawn(cmd, args, {
-        stdio: ["pipe", "pipe", "pipe"],
+        stdio: ['pipe', 'pipe', 'pipe'],
         ...options,
     });
 
-    let fullSessionOutput = "";
-    let currentOutputBuffer = ""; // Stores stripped output
+    let fullSessionOutput = '';
+    let currentOutputBuffer = ''; // Stores stripped output
     let processExited = false;
     let exitCode: number | null = null;
     let processError: Error | null = null;
@@ -95,8 +95,8 @@ export function createInteractiveCLI(
                 let matchedPortion: string;
                 // String indexOf case
                 if (
-                    typeof match === "number" &&
-                    typeof request.textToMatch === "string"
+                    typeof match === 'number' &&
+                    typeof request.textToMatch === 'string'
                 ) {
                     matchedPortion = currentOutputBuffer.substring(
                         0,
@@ -107,7 +107,7 @@ export function createInteractiveCLI(
                     );
                 } else if (
                     request.textToMatch instanceof RegExp &&
-                    typeof match === "object"
+                    typeof match === 'object'
                 ) {
                     // RegExp.match case
                     // match[0] is the matched string, match.index is its start
@@ -127,10 +127,10 @@ export function createInteractiveCLI(
         }
     };
 
-    child.stdout?.on("data", processData);
-    child.stderr?.on("data", processData);
+    child.stdout?.on('data', processData);
+    child.stderr?.on('data', processData);
 
-    child.on("error", (err: Error) => {
+    child.on('error', (err: Error) => {
         processError = err;
         processExited = true; // Treat as exited for pending operations
         // Reject pending waitForText requests
@@ -148,7 +148,7 @@ export function createInteractiveCLI(
         }
     });
 
-    child.on("close", (code: number | null, signal: NodeJS.Signals | null) => {
+    child.on('close', (code: number | null, signal: NodeJS.Signals | null) => {
         exitCode = code;
         processExited = true;
         // Reject any remaining waitForText requests because the process closed before they were met
@@ -218,7 +218,7 @@ export function createInteractiveCLI(
 
                 if (match !== null) {
                     let matchedPortion: string;
-                    if (typeof match === "number") {
+                    if (typeof match === 'number') {
                         matchedPortion = currentOutputBuffer.substring(
                             0,
                             match + (textToMatch as string).length,
@@ -275,7 +275,7 @@ export function createInteractiveCLI(
                 child.stdin.write(`${input}\n`);
             } else {
                 console.warn(
-                    "CLI Helper: Attempted to respond to a closed or non-writable process.",
+                    'CLI Helper: Attempted to respond to a closed or non-writable process.',
                 );
             }
         },
@@ -310,8 +310,8 @@ export function createInteractiveCLI(
                         }, timeoutMs);
 
                         // Ensure timer is cleared if process closes naturally
-                        child.once("close", () => clearTimeout(endTimer));
-                        child.once("error", () => clearTimeout(endTimer));
+                        child.once('close', () => clearTimeout(endTimer));
+                        child.once('error', () => clearTimeout(endTimer));
                     },
                 );
             }
@@ -323,10 +323,10 @@ export function createInteractiveCLI(
                 try {
                     // Attempt to kill the entire process group by sending SIGTERM to -PID
                     // This is more robust for killing spawned shells or processes that create their own children.
-                    process.kill(-child.pid, "SIGTERM");
+                    process.kill(-child.pid, 'SIGTERM');
                 } catch (_e: unknown) {
                     // Fallback if killing process group fails (e.g., not supported, or process already dead)
-                    child.kill("SIGTERM");
+                    child.kill('SIGTERM');
                 }
             }
         },

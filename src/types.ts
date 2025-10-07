@@ -1,4 +1,4 @@
-export type PackageManager = "yarn" | "pnpm" | "npm";
+export type PackageManager = 'yarn' | 'pnpm' | 'npm';
 
 export interface RepositoryInfo {
     defaultRemote: string;

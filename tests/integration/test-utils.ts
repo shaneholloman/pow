@@ -2,17 +2,17 @@ import {
     type ExecSyncOptions,
     execSync,
     type SpawnOptions,
-} from "node:child_process";
-import { copyFile, lstat, mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
-import { createInteractiveCLI } from "./interactiveSpawn.js";
+} from 'node:child_process';
+import { copyFile, lstat, mkdir, mkdtemp, readdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { createInteractiveCLI } from './interactiveSpawn.js';
 
 const __filename = new URL(import.meta.url).pathname;
 const utilsScriptDirname = dirname(__filename);
 
-const projectRoot: string = join(utilsScriptDirname, "..", "..");
-const gitMainScript: string = join(projectRoot, "dist", "pow.js");
+const projectRoot: string = join(utilsScriptDirname, '..', '..');
+const gitMainScript: string = join(projectRoot, 'dist', 'pow.js');
 
 export interface TestAPI {
     tempDir: string;
@@ -74,16 +74,16 @@ export async function setupTemporaryTestEnvironment(
             async () => await rm(newTempdir, { recursive: true, force: true }),
         );
 
-        const localDir: string = join(baseTempDir, "local");
-        const remoteDir: string = join(baseTempDir, "remote");
+        const localDir: string = join(baseTempDir, 'local');
+        const remoteDir: string = join(baseTempDir, 'remote');
         await mkdir(localDir);
         await mkdir(remoteDir);
 
-        const remoteRepoPath: string = join(remoteDir, "upstream.git");
+        const remoteRepoPath: string = join(remoteDir, 'upstream.git');
         execSync(`git init --bare "${remoteRepoPath}"`, {
             cwd: baseTempDir,
-            stdio: "pipe",
-            encoding: "utf-8",
+            stdio: 'pipe',
+            encoding: 'utf-8',
         });
 
         const tempDir: string = localDir; // tempDir for the TestAPI refers to localDir
@@ -96,16 +96,16 @@ export async function setupTemporaryTestEnvironment(
                 const { silent: _silent, ...execOptions } = options || {};
                 const output: string = execSync(command, {
                     cwd: tempDir,
-                    stdio: "pipe",
-                    encoding: "utf-8",
+                    stdio: 'pipe',
+                    encoding: 'utf-8',
                     env: {
                         ...process.env,
-                        FORCE_COLOR: "0", // Disable color output for easier parsing
+                        FORCE_COLOR: '0', // Disable color output for easier parsing
                         ...execOptions?.env,
                     },
                     ...execOptions,
                 })
-                    .toString("utf8")
+                    .toString('utf8')
                     .trim();
                 return output;
             } catch (e: unknown) {
@@ -120,23 +120,23 @@ export async function setupTemporaryTestEnvironment(
                         error.message || String(e),
                     );
                     if (error.stdout)
-                        console.error("Stdout:", error.stdout.toString());
+                        console.error('Stdout:', error.stdout.toString());
                     if (error.stderr)
-                        console.error("Stderr:", error.stderr.toString());
+                        console.error('Stderr:', error.stderr.toString());
                 }
                 throw e;
             }
         };
 
-        execInTempDir("git init");
+        execInTempDir('git init');
         execInTempDir('git config user.name "Test User"');
         execInTempDir('git config user.email "test@example.com"');
-        execInTempDir("git checkout -b main");
+        execInTempDir('git checkout -b main');
 
         const initialFixturesPath: string = join(
             utilsScriptDirname,
-            "..",
-            "fixtures",
+            '..',
+            'fixtures',
         );
         const fixtureFiles: string[] = await readdir(initialFixturesPath);
         for (const file of fixtureFiles) {
@@ -148,14 +148,14 @@ export async function setupTemporaryTestEnvironment(
             }
         }
 
-        execInTempDir("git add .");
+        execInTempDir('git add .');
         execInTempDir(
             'git commit --allow-empty -m "Initial commit with fixtures"',
         );
 
-        const relativeRemotePath: string = join("..", "remote", "upstream.git");
+        const relativeRemotePath: string = join('..', 'remote', 'upstream.git');
         execInTempDir(`git remote add origin "${relativeRemotePath}"`);
-        execInTempDir("git push -u origin main");
+        execInTempDir('git push -u origin main');
 
         const applyGitChangeLogic = async (
             fixtureSubPath: string,
@@ -164,8 +164,8 @@ export async function setupTemporaryTestEnvironment(
             try {
                 const fixtureDirPath = join(
                     utilsScriptDirname,
-                    "..",
-                    "fixtures",
+                    '..',
+                    'fixtures',
                     fixtureSubPath,
                 );
                 const changeFixtureFiles: string[] =
@@ -178,7 +178,7 @@ export async function setupTemporaryTestEnvironment(
                         await copyFile(srcPath, destPath);
                     }
                 }
-                execInTempDir("git add .");
+                execInTempDir('git add .');
                 execInTempDir(`git commit -m "${commitMessage}"`);
             } catch (error: unknown) {
                 const errorMessage =
@@ -200,11 +200,11 @@ export async function setupTemporaryTestEnvironment(
             execInteractive: (command: string, options?: SpawnOptions) => {
                 const run = createInteractiveCLI(command, {
                     cwd: tempDir,
-                    stdio: ["pipe", "pipe", "pipe"],
+                    stdio: ['pipe', 'pipe', 'pipe'],
                     env: {
                         ...process.env,
                         ...options?.env,
-                        FORCE_COLOR: "0",
+                        FORCE_COLOR: '0',
                     },
                     ...options,
                 });
