@@ -52,5 +52,8 @@
   "bugs": {
     "url": "https://github.com/shaneholloman/pow/issues"
   },
-  "homepage": "https://github.com/shaneholloman/pow#readme"
+  "homepage": "https://github.com/shaneholloman/pow#readme",
+  "publishConfig": {
+    "access": "public"
+  }
 }
