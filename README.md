@@ -14,13 +14,13 @@ A fast CLI tool to manage git main/master branches and cleanup operations.
 ## Installation
 
 ```bash
-npm install -g pow
+npm install -g @shaneholloman/pow
 ```
 
 Or use directly with npx:
 
 ```bash
-npx pow
+npx @shaneholloman/pow
 ```
 
 ## Usage
