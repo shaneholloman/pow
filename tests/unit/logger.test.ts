@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { log } from '../../src/logger.js';
 
 describe('logger', () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Vitest spy typing is complex and any is acceptable for test utilities
     let consoleLogSpy: any;
 
     beforeEach(() => {

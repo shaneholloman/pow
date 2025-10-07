@@ -16,13 +16,26 @@
     "linter": {
         "enabled": true,
         "rules": {
-            "recommended": true
+            "recommended": true,
+            "correctness": {
+                "noUnusedVariables": "error"
+            },
+            "style": {
+                "useConst": "error",
+                "useShorthandFunctionType": "error",
+                "useTemplate": "error"
+            },
+            "suspicious": {
+                "noExplicitAny": "warn",
+                "noDuplicateObjectKeys": "error"
+            }
         }
     },
     "javascript": {
         "formatter": {
             "quoteStyle": "single",
-            "semicolons": "always"
+            "semicolons": "always",
+            "arrowParentheses": "always"
         }
     },
     "assist": {
@@ -32,5 +45,17 @@
                 "organizeImports": "on"
             }
         }
-    }
+    },
+    "overrides": [
+        {
+            "includes": ["**/*.test.ts", "tests/**/*.ts"],
+            "linter": {
+                "rules": {
+                    "suspicious": {
+                        "noExplicitAny": "off"
+                    }
+                }
+            }
+        }
+    ]
 }
