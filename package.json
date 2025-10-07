@@ -1,0 +1,58 @@
+{
+  "name": "pow",
+  "version": "0.1.0",
+  "description": "A CLI tool to manage git main/master branches and cleanup",
+  "type": "module",
+  "bin": {
+    "pow": "./dist/pow.js"
+  },
+  "files": [
+    "dist/pow.js"
+  ],
+  "scripts": {
+    "start": "tsx src/cli.ts",
+    "build": "bun build src/cli.ts --outfile dist/pow.js --target node --format esm --external chalk --external zx --external commander --banner '#!/usr/bin/env node'",
+    "prepublishOnly": "npm run build",
+    "pretest": "npm run build",
+    "test": "npm run test:typecheck && vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "git",
+    "cli",
+    "branch",
+    "cleanup",
+    "maintenance"
+  ],
+  "author": "Jan Nicklas",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.7.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4",
+    "zx": "^8.8.4"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jantimon/pow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jantimon/pow/issues"
+  },
+  "homepage": "https://github.com/jantimon/pow#readme",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "commander": "^14.0.1"
+  }
+}
